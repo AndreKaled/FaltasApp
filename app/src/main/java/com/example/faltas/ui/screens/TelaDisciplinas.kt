@@ -11,19 +11,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.faltas.model.Disciplina
+import com.example.faltas.repo.DisciplinaRepository
 import com.example.faltas.ui.components.DisciplinaCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaDisciplinas() {
-    // Estado da lista
-    val disciplinas = remember {
-        mutableStateListOf(
-            Disciplina(1, "Cálculo 1", 60, 0),
-            Disciplina(2, "Física 1", 80, 2),
-            Disciplina(3, "Algoritmos", 72, 1),
-        )
-    }
+    val repository = remember { DisciplinaRepository() }
+    val disciplinas = repository.getDisciplinas();
 
     Scaffold(
         topBar = {
@@ -35,12 +30,10 @@ fun TelaDisciplinas() {
                 DisciplinaCard(
                     d = disciplina,
                     onAdd = {
-                        disciplinas[index] = disciplina.copy(faltas = disciplina.faltas + 1)
+                        repository.adicionaFalta(disciplina.id)
                     },
                     onRemove = {
-                        if (disciplina.faltas > 0) {
-                            disciplinas[index] = disciplina.copy(faltas = disciplina.faltas - 1)
-                        }
+                        repository.removeFalta(disciplina.id)
                     }
                 )
             }
