@@ -1,5 +1,7 @@
 package com.example.faltas.model
 
+import com.example.faltas.db.DisciplinaEntity
+
 data class Disciplina(
     val id: Int,
     val nome: String,
@@ -13,3 +15,7 @@ data class Disciplina(
     val estaReprovado: Boolean
         get() = faltas > limiteFaltas
 }
+
+//extensoes pra converter entre modelo e entity
+fun DisciplinaEntity.toModel() =  Disciplina(id, nome, CH, faltas)
+fun Disciplina.toEntity() = DisciplinaEntity(id, nome, CH, faltas)

@@ -1,24 +1,26 @@
-package com.example.faltas.repo
-
-import androidx.compose.runtime.mutableStateListOf
+import com.example.faltas.db.DisciplinaDao
 import com.example.faltas.model.Disciplina
+import com.example.faltas.model.toEntity
+import com.example.faltas.model.toModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
-class DisciplinaRepository{
-    private val disciplinas = mutableStateListOf(
-        Disciplina(1, "Calculo 1", 60, 0),
-        Disciplina(2,"Calculo 2", 80, 2),
-        Disciplina(3,"Calculo 3", 72, 1)
-        )
+class DisciplinaRepository(private val dao: DisciplinaDao) {
 
-    fun getDisciplinas() = disciplinas
+    val allDisciplinas: kotlinx.coroutines.flow.Flow<List<Disciplina>> =
+        dao.getAll().map { entities ->
+            entities.map { it.toModel() }
+        }
 
-    fun adicionaFalta(id: Int){
-        val index = disciplinas.indexOfFirst {it.id == id}
-        if(index != -1) disciplinas[index] = disciplinas[index].copy(faltas = disciplinas[index].faltas + 1)
+    suspend fun insert(disciplina: Disciplina) {
+        dao.insert(disciplina.toEntity())
     }
 
-    fun removeFalta(id: Int){
-        val index = disciplinas.indexOfFirst {it.id == id}
-        if(index != -1) disciplinas[index] = disciplinas[index].copy(faltas = disciplinas[index].faltas - 1)
+    suspend fun atualizarFaltas(id: Int, incrementar: Boolean) {
+        val todas = dao.getAll().first()
+        todas.find { it.id == id }?.let { entity ->
+            val novoValor = if (incrementar) entity.faltas + 1 else (entity.faltas - 1).coerceAtLeast(0)
+            dao.update(entity.copy(faltas = novoValor))
+        }
     }
 }
