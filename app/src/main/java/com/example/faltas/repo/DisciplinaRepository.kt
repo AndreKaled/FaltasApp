@@ -12,15 +12,16 @@ class DisciplinaRepository(private val dao: DisciplinaDao) {
             entities.map { it.toModel() }
         }
 
-    suspend fun insert(disciplina: Disciplina) {
+    suspend fun adicionar(disciplina: Disciplina) {
         dao.insert(disciplina.toEntity())
     }
 
-    suspend fun atualizarFaltas(id: Int, incrementar: Boolean) {
-        val todas = dao.getAll().first()
-        todas.find { it.id == id }?.let { entity ->
-            val novoValor = if (incrementar) entity.faltas + 1 else (entity.faltas - 1).coerceAtLeast(0)
-            dao.update(entity.copy(faltas = novoValor))
-        }
+    suspend fun atualizarFaltas(disciplina: Disciplina, incrementar: Boolean) {
+        val novoValor = if (incrementar) disciplina.faltas + 1 else (disciplina.faltas - 1).coerceAtLeast(0)
+        dao.update(disciplina.toEntity().copy(faltas = novoValor))
+    }
+
+    suspend fun deletar(disciplina: Disciplina){
+        dao.delete(disciplina.toEntity())
     }
 }
