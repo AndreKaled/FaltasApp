@@ -1,6 +1,7 @@
 package com.example.faltas.db
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -16,4 +17,7 @@ interface DisciplinaDao {
 
     @Update
     suspend fun update(disciplina: DisciplinaEntity)
+
+    @Delete
+    suspend fun delete(disciplina: DisciplinaEntity)
 }

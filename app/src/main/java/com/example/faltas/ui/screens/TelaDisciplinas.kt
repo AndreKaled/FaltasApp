@@ -2,6 +2,7 @@ package com.example.faltas.ui.screens
 
 import DisciplinaRepository
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.room.Room
@@ -25,6 +27,7 @@ import com.example.faltas.db.AppDatabase
 import com.example.faltas.model.Disciplina
 import com.example.faltas.ui.components.AddDisciplinaDialog
 import com.example.faltas.ui.components.DisciplinaCard
+import com.example.faltas.ui.components.SwipeDeletavel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,17 +61,22 @@ fun TelaDisciplinas() {
                 onDismiss = { mostrarDialog = false },
                 onConfirm = { nome, cargaHoraria ->
                     mostrarDialog = false
-                    scope.launch { repository.insert(Disciplina(0, nome, cargaHoraria, 0)) }
+                    scope.launch { repository.adicionar(Disciplina(0, nome, cargaHoraria, 0)) }
                 }
             )
         }
         LazyColumn(contentPadding = padding) {
-            itemsIndexed(disciplinas) { index, disciplina ->
-                DisciplinaCard(
-                    d = disciplina,
-                    onAdd = { scope.launch{ repository.atualizarFaltas(disciplina.id, true) } },
-                    onRemove = { scope.launch { repository.atualizarFaltas(disciplina.id, false) } }
-                )
+            items(disciplinas, key = {it.id}) { disciplina ->
+                SwipeDeletavel(
+                    onDelete = {scope.launch { repository.deletar(disciplina) } },
+                    modifier = Modifier.animateItem()
+                ) {
+                    DisciplinaCard(
+                        d = disciplina,
+                        onAdd = { scope.launch{ repository.atualizarFaltas(disciplina, true) } },
+                        onRemove = { scope.launch{ repository.atualizarFaltas(disciplina, false) } }
+                    )
+                }
             }
         }
     }
